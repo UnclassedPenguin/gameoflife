@@ -37,52 +37,117 @@ func menu(s tcell.Screen, style tcell.Style) {
       case tcell.KeyRune:
         switch ev.Rune() {
         case '1':
-          arr := creatRandomArr(s)
-          draw(arr, s, style)
+          arr := createRandomArr(s)
+          mainLoop(arr, s, style)
         }
       }
     }
   }
 }
 
-//func countNeighors(arr []cell) []cell{
-  //for _, cell := range arr {
-    //for x := -1; x < 2; x++ {
-      //for y := -1; y <2; y++ {
-        //if arr[cell
-  //}
-//}
+func mainLoop(arr [][]cell, s tcell.Screen, style tcell.Style) {
 
-// This creates a random array that matches the size of the screen
-func creatRandomArr(s tcell.Screen) []cell {
+  for i := 0; i < 1; i++ {
+    draw(arr, s, style)
+    arr = countNeighbors(arr, s)
+    for _, innerArr := range arr {
+        //fmt.Print(innerArr)
+      for _, cell := range innerArr {
+        //fmt.Println(cell)
+        if cell.state {
+          if cell.neighbors < 2 {
+            //cell.state = false
+            arr[cell.x][cell.y].state = false
+          } else if cell.neighbors > 3 {
+            //cell.state = false
+            arr[cell.x][cell.y].state = false
+          }
+        } else {
+          if cell.neighbors == 3 {
+            //cell.state = true
+            arr[cell.x][cell.y].state = true
+          }
+        }
+      }
+    }
+    time.Sleep(time.Millisecond * 1000)
+  }
+}
+
+func countNeighbors(arr [][]cell, s tcell.Screen) [][]cell{
+//func countNeighbors(arr [][]cell, s tcell.Screen) {
   x, y := s.Size()
 
-  var arr []cell
+  //s.Fini()
+
+  // This is complete gibberish. Oof.
+  // It iterates over every space and checks the spots around it
+  // and does neighbors++ if a cell.state is true. Ignores
+  // the border cells for the moment because you get out of range
+  // errors.
   for i := 0; i < x; i++ {
+    for j := 0; j < y; j++ {
+      //fmt.Println("array[i][j]:", i, j)
+      //fmt.Println("arr.x", arr[i][j].x)
+      //fmt.Println("arr.y", arr[i][j].y)
+      //fmt.Println("Neighbors:", arr[i][j].neighbors)
+      if i > 1 && i < x-1 && j > 1 && j < y-1 {
+        if arr[i-1][j-1].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i][j-1].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i+1][j-1].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i-1][j].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i+1][j].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i-1][j+1].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i][j+1].state {
+          arr[i][j].neighbors++
+        }
+        if arr[i+1][j+1].state {
+          arr[i][j].neighbors++
+        }
+      }
+    }
+  }
+  return arr
+}
+
+func createRandomArr(s tcell.Screen) [][]cell {
+  x, y := s.Size()
+  var arr [][]cell
+
+  for i := 0; i < x; i++ {
+    var newArr []cell
+    arr = append(arr, newArr)
     for j := 0; j < y; j++ {
       var newCell cell
       newCell.x = i
       newCell.y = j
-      arr = append(arr, newCell)
+      newCell.state = flipCoin(50,10)
+      arr[i] = append(arr[i], newCell)
     }
   }
-
-  for i, _ := range arr {
-    if flipCoin(50, 5) {
-      arr[i].state = true
-    }
-  }
-
   return arr
 }
 
-
-// Draws a slice of cells to the screen
-func draw(arr []cell, s tcell.Screen, style tcell.Style) {
+// Draws a 2d slice of cells to the screen
+func draw(arr [][]cell, s tcell.Screen, style tcell.Style) {
   s.Clear()
-  for _, cell := range arr {
-    if cell.state {
-      s.SetContent(cell.x, cell.y, tcell.RuneBlock, []rune{}, style)
+  for _, innerArr := range arr {
+    for _, cell := range innerArr {
+      if cell.state {
+        s.SetContent(cell.x, cell.y, tcell.RuneBlock, []rune{}, style)
+      }
     }
   }
   s.Sync()
@@ -96,6 +161,9 @@ func writeToScreen(s tcell.Screen, style tcell.Style, x int, y int, str string) 
 
 // I use this to decide if a cell has a state of true (alive) or state of
 // false (dead) to start
+// If you use flipCoin(10,2) it picks a random number between 0 and 9 and
+// returns true if the number is less than 2. This way you can change
+// the probability that you will get a live cell. 
 func flipCoin(total int, limit int) bool{
   rand.Seed(time.Now().UnixNano())
   x := rand.Intn(total)
