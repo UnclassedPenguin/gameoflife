@@ -8,13 +8,18 @@ import (
   "github.com/gdamore/tcell/v2"
 )
 
-type cell struct {
-  x int
-  y int
-  state bool
-  neighbors int
-}
+// A cell that is alive will say alive if it has between these 
+// neighbors. So less than min neighbors, the cell will die,
+// and more than maxNeighbors the cell will die.
+var minNeighbors = 2
+var maxNeighbors = 3
 
+// This says pick a number between 1 and 50.
+// If it is less than 2, make the cell alive.
+var randHigh = 50
+var randLow = 2
+
+// Displays the menu at the start.
 func menu(s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
   str1 := "Unclassed Penguin Game of Life"
@@ -45,114 +50,133 @@ func menu(s tcell.Screen, style tcell.Style) {
   }
 }
 
-func mainLoop(arr [][]cell, s tcell.Screen, style tcell.Style) {
+// This is the main loop. It gets a random array, draws it to the screen,
+// Does the computing to figure out how many neighbors a cell has, creates
+// the new array, and then draws it and repeats.
+func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
+  x, y := s.Size()
 
-  for i := 0; i < 1; i++ {
+  go func() {
+    for {
+      switch ev := s.PollEvent().(type) {
+      case *tcell.EventResize:
+        s.Sync()
+      case *tcell.EventKey:
+        switch ev.Key() {
+        case tcell.KeyCtrlC, tcell.KeyEscape:
+          s.Fini()
+          os.Exit(0)
+        case tcell.KeyRune:
+          switch ev.Rune() {
+          case '1':
+            arr = createRandomArr(s)
+          }
+
+        }
+      }
+    }
+  }()
+
+  for {
     draw(arr, s, style)
-    arr = countNeighbors(arr, s)
-    for _, innerArr := range arr {
-        //fmt.Print(innerArr)
-      for _, cell := range innerArr {
-        //fmt.Println(cell)
-        if cell.state {
-          if cell.neighbors < 2 {
-            //cell.state = false
-            arr[cell.x][cell.y].state = false
-          } else if cell.neighbors > 3 {
-            //cell.state = false
-            arr[cell.x][cell.y].state = false
-          }
+    newArr := createEmptyArr(s)
+
+    for i := 0; i < x; i++ {
+      for j := 0; j < y; j++ {
+        var neighbors int
+        neighbors = countNeighbors(s, arr, i, j)
+
+        if arr[i][j] == 1 && (neighbors < minNeighbors || neighbors > maxNeighbors) {
+          newArr[i][j] = 0
+        } else if arr[i][j] == 0 && neighbors == 3 {
+          newArr[i][j] = 1
         } else {
-          if cell.neighbors == 3 {
-            //cell.state = true
-            arr[cell.x][cell.y].state = true
-          }
+          newArr[i][j] = arr[i][j]
         }
       }
+    arr[i] = newArr[i]
     }
-    time.Sleep(time.Millisecond * 1000)
+
+    time.Sleep(time.Millisecond * 100)
   }
 }
 
-func countNeighbors(arr [][]cell, s tcell.Screen) [][]cell{
-//func countNeighbors(arr [][]cell, s tcell.Screen) {
-  x, y := s.Size()
+// This is a function that takes an array, and an x y position within that array,
+// and returns the count of how many of its 8 neighbors are "alive".
+// ("alive" == 1)
+func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
+  cols, rows := s.Size()
+  neighbors := 0
 
-  //s.Fini()
-
-  // This is complete gibberish. Oof.
-  // It iterates over every space and checks the spots around it
-  // and does neighbors++ if a cell.state is true. Ignores
-  // the border cells for the moment because you get out of range
-  // errors.
-  for i := 0; i < x; i++ {
-    for j := 0; j < y; j++ {
-      //fmt.Println("array[i][j]:", i, j)
-      //fmt.Println("arr.x", arr[i][j].x)
-      //fmt.Println("arr.y", arr[i][j].y)
-      //fmt.Println("Neighbors:", arr[i][j].neighbors)
-      if i > 1 && i < x-1 && j > 1 && j < y-1 {
-        if arr[i-1][j-1].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i][j-1].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i+1][j-1].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i-1][j].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i+1][j].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i-1][j+1].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i][j+1].state {
-          arr[i][j].neighbors++
-        }
-        if arr[i+1][j+1].state {
-          arr[i][j].neighbors++
-        }
-      }
+  for i := -1; i < 2; i++ {
+    for j := -1; j < 2; j++ {
+      neighbors += arr[(x+i+cols)%cols][(y+j+rows)%rows]
     }
   }
-  return arr
+
+  if arr[x][y] == 1 {
+    neighbors--
+  }
+  return neighbors
 }
 
-func createRandomArr(s tcell.Screen) [][]cell {
+// This creates the first random array. 
+// To tweak it, mess with the global variables at the top to change
+// the probability that a cell will be alive.
+func createRandomArr(s tcell.Screen) [][]int {
   x, y := s.Size()
-  var arr [][]cell
+  var arr [][]int
 
   for i := 0; i < x; i++ {
-    var newArr []cell
+    var newArr []int
     arr = append(arr, newArr)
     for j := 0; j < y; j++ {
-      var newCell cell
-      newCell.x = i
-      newCell.y = j
-      newCell.state = flipCoin(50,10)
-      arr[i] = append(arr[i], newCell)
+      var newInt int
+      if flipCoin(randHigh,randLow) {
+        newInt = 1
+      } else {
+        newInt = 0
+      }
+      arr[i] = append(arr[i], newInt)
     }
   }
   return arr
 }
 
+// I use this function to create an empty array that then is populated 
+// with the "real" data when we count neighbors on the working array.
+func createEmptyArr(s tcell.Screen) [][]int {
+  x, y := s.Size()
+  var arr [][]int
+
+  for i := 0; i < x; i++ {
+    var newArr []int
+    arr = append(arr, newArr)
+    for j := 0; j < y; j++ {
+      newInt := 0
+      arr[i] = append(arr[i], newInt)
+    }
+  }
+  return arr
+}
+
+
 // Draws a 2d slice of cells to the screen
-func draw(arr [][]cell, s tcell.Screen, style tcell.Style) {
+// 1's are white and 0's are background
+func draw(arr [][]int, s tcell.Screen, style tcell.Style) {
+  x, y := s.Size()
   s.Clear()
-  for _, innerArr := range arr {
-    for _, cell := range innerArr {
-      if cell.state {
-        s.SetContent(cell.x, cell.y, tcell.RuneBlock, []rune{}, style)
+  for i := 0; i < x; i++ {
+    for j := 0; j < y; j++ {
+      if arr[i][j] == 1 {
+        s.SetContent(i, j, tcell.RuneBlock, []rune{}, style)
       }
     }
   }
   s.Sync()
 }
 
+// This is used just to write strings to the screen. Used in the main menu.
 func writeToScreen(s tcell.Screen, style tcell.Style, x int, y int, str string) {
   for i, char := range str {
     s.SetContent(x+i, y, rune(char), []rune{}, style)
@@ -174,6 +198,7 @@ func flipCoin(total int, limit int) bool{
   }
 }
 
+// Main function. Starts the tcell.Screen and passes to the menu. 
 func main() {
   s, err := tcell.NewScreen()
   if err != nil {
