@@ -51,7 +51,8 @@ func menu(s tcell.Screen, style tcell.Style) {
     writeToScreen(s,style,((x/2)-(len(str)/2)),y/3+(i*2),str)
   }
 
-  // Keyboard handling
+  // Keyboard handling. Keys to quit (Esc, Ctrl-c, q)
+  // and the key to start the game (1)
   for {
     switch ev := s.PollEvent().(type) {
     case *tcell.EventResize:
@@ -137,7 +138,7 @@ func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style) {
     // You can comment out this line and uncomment the line above
     // For a different effect.
 
-    slice= newSlice
+    slice = newSlice
 
     draw(slice, s, style)
     time.Sleep(time.Millisecond * 100)
