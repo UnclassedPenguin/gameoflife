@@ -6,6 +6,19 @@ I have been practicing my go lately, and so I decided to make [Conway's Game of 
 
 Thanks to [The Coding Train](https://www.youtube.com/watch?v=FWSR_7kZuYg) for the complicated (at least for me) math to do the wrap around world.  
 
+## Try it Out
+
+To try it out yourself, make sure your go environment is set up, then:
+
+```shell
+$ go install github.com/unclassedpenguin/gameoflife@latest
+```
+
+Then simply run:
+
+```shell
+$ gameoflife
+```
 
 ## To-Do:
 
