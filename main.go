@@ -20,10 +20,20 @@ import (
   "github.com/gdamore/tcell/v2"
 )
 
-// This says pick a random number between 0 and randHigh.
-// If it is less than randLow, make the cell alive.
+
+/*
+These two variables are used in the initial array
+(slice, you know what I mean :p) to randomly
+decide wether a cell will start as alive or dead.
+
+Used in the func createRandomArr()
+
+It says pick a random number between 0 and randHigh.
+If it is less than randLow, make the cell alive.
+*/
 var randHigh = 50
 var randLow = 10
+
 
 // Displays the "menu" at the start.
 func menu(s tcell.Screen, style tcell.Style) {
