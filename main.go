@@ -22,9 +22,9 @@ import (
 
 
 /*
-These two variables are used in the initial array
-(slice, you know what I mean :p) to randomly
-decide wether a cell will start as alive or dead.
+These two variables are used in the initial slice 
+to randomly decide wether a cell will start as 
+alive or dead.
 
 Used in the func createRandomArr()
 
