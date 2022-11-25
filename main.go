@@ -8,16 +8,10 @@ import (
   "github.com/gdamore/tcell/v2"
 )
 
-// A cell that is alive will say alive if it has between these 
-// neighbors. So less than min neighbors, the cell will die,
-// and more than maxNeighbors the cell will die.
-var minNeighbors = 2
-var maxNeighbors = 3
-
 // This says pick a number between 1 and 50.
 // If it is less than 2, make the cell alive.
 var randHigh = 50
-var randLow = 2
+var randLow = 10
 
 // Displays the menu at the start.
 func menu(s tcell.Screen, style tcell.Style) {
@@ -78,7 +72,6 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
   }()
 
   for {
-    draw(arr, s, style)
     newArr := createEmptyArr(s)
 
     for i := 0; i < x; i++ {
@@ -86,7 +79,7 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
         var neighbors int
         neighbors = countNeighbors(s, arr, i, j)
 
-        if arr[i][j] == 1 && (neighbors < minNeighbors || neighbors > maxNeighbors) {
+        if arr[i][j] == 1 && (neighbors < 2 || neighbors > 3) {
           newArr[i][j] = 0
         } else if arr[i][j] == 0 && neighbors == 3 {
           newArr[i][j] = 1
@@ -94,9 +87,22 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
           newArr[i][j] = arr[i][j]
         }
       }
-    arr[i] = newArr[i]
+      // This line makes it act strange. Not quite conways game of life,
+      // But interesting none the less. Uncomment this line, and make sure
+      // to comment out "arr = newArr" that follows. Then go to top
+      // and change the global variable randLow to 1 or 2
+
+      //arr[i] = newArr[i]
     }
 
+    // This line makes it actually act like conways game of life. 
+    // Need to increase global variable randLow to 10 or so.
+    // You can comment out this line and uncomment the line above
+    // For a different effect.
+
+    arr = newArr
+
+    draw(arr, s, style)
     time.Sleep(time.Millisecond * 100)
   }
 }
