@@ -26,7 +26,7 @@ These two variables are used in the initial slice
 to randomly decide wether a cell will start as 
 alive or dead.
 
-Used in the func createRandomArr()
+Used in the func createRandomSlice()
 
 It says pick a random number between 0 and randHigh.
 If it is less than randLow, make the cell alive.
@@ -67,18 +67,18 @@ func menu(s tcell.Screen, style tcell.Style) {
           s.Fini()
           os.Exit(0)
         case '1':
-          arr := createRandomArr(s)
-          mainLoop(arr, s, style)
+          slice := createRandomSlice(s)
+          mainLoop(slice, s, style)
         }
       }
     }
   }
 }
 
-// This is the main loop. It gets a random array, draws it to the screen,
+// This is the main loop. It gets a random slice, draws it to the screen,
 // Does the computing to figure out how many neighbors a cell has, creates
-// the new array, and then draws it and repeats.
-func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
+// the new slice, and then draws it and repeats.
+func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
 
   // Handles keyboard input in main loop. Mainly ctrl-c 
@@ -100,7 +100,7 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
             s.Fini()
             os.Exit(0)
           case '1':
-            arr = createRandomArr(s)
+            slice = createRandomSlice(s)
           }
         }
       }
@@ -110,26 +110,26 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
   // This is the main "draw" loop. Takes a slice, calculates
   // a new slice, draws it to the screen, and repeats.
   for {
-    newArr := createEmptyArr(s)
+    newSlice := createEmptySlice(s)
     for i := 0; i < x; i++ {
       for j := 0; j < y; j++ {
         var neighbors int
-        neighbors = countNeighbors(s, arr, i, j)
+        neighbors = countNeighbors(s, slice, i, j)
 
-        if arr[i][j] == 1 && (neighbors < 2 || neighbors > 3) {
-          newArr[i][j] = 0
-        } else if arr[i][j] == 0 && neighbors == 3 {
-          newArr[i][j] = 1
+        if slice[i][j] == 1 && (neighbors < 2 || neighbors > 3) {
+          newSlice[i][j] = 0
+        } else if slice[i][j] == 0 && neighbors == 3 {
+          newSlice[i][j] = 1
         } else {
-          newArr[i][j] = arr[i][j]
+          newSlice[i][j] = slice[i][j]
         }
       }
       // This line makes it act strange. Not quite conways game of life,
       // But interesting none the less. Uncomment this line, and make sure
-      // to comment out "arr = newArr" that follows. Then go to top
+      // to comment out "slice = newSlice" that follows. Then go to top
       // and change the global variable randLow to 1 or 2
 
-      //arr[i] = newArr[i]
+      //slice[i] = newSlice[i]
     }
 
     // This line makes it actually act like conways game of life. 
@@ -137,17 +137,17 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
     // You can comment out this line and uncomment the line above
     // For a different effect.
 
-    arr = newArr
+    slice= newSlice
 
-    draw(arr, s, style)
+    draw(slice, s, style)
     time.Sleep(time.Millisecond * 100)
   }
 }
 
-// This is a function that takes an array, and an x y position within that array,
+// This is a function that takes a slice and an x y position within that slice,
 // and returns the count of how many of its 8 neighbors are "alive".
 // ("alive" == 1)
-func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
+func countNeighbors(s tcell.Screen, slice [][]int, x, y int) int{
   cols, rows := s.Size()
   neighbors := 0
 
@@ -155,12 +155,12 @@ func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
     for j := -1; j < 2; j++ {
       // Thanks to The Coding Train (on youtube) for this 
       // "wrap around" formula.
-      neighbors += arr[(x+i+cols)%cols][(y+j+rows)%rows]
+      neighbors += slice[(x+i+cols)%cols][(y+j+rows)%rows]
     }
   }
 
   // Don't count yourself as a neighbor.
-  if arr[x][y] == 1 {
+  if slice[x][y] == 1 {
     neighbors--
   }
 
@@ -170,13 +170,13 @@ func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
 // This creates the first random slice. 
 // To tweak it, mess with the global variables at the top to change
 // the probability that a cell will be alive.
-func createRandomArr(s tcell.Screen) [][]int {
+func createRandomSlice(s tcell.Screen) [][]int {
   x, y := s.Size()
-  var arr [][]int
+  var slice [][]int
 
   for i := 0; i < x; i++ {
-    var newArr []int
-    arr = append(arr, newArr)
+    var newSlice []int
+    slice = append(slice, newSlice)
     for j := 0; j < y; j++ {
       var newInt int
       // This is where the global variables change things.
@@ -186,40 +186,40 @@ func createRandomArr(s tcell.Screen) [][]int {
       } else {
         newInt = 0
       }
-      arr[i] = append(arr[i], newInt)
+      slice[i] = append(slice[i], newInt)
     }
   }
-  return arr
+  return slice
 }
 
-// I use this function to create an empty "2d" array that then is populated 
-// with the "real" data when we count neighbors on the working array.
+// I use this function to create an empty "2d" slice that then is populated 
+// with the "real" data when we count neighbors on the working slice.
 // (By "empty" I mean filled entirely with 0's)
-// The array is the same size as the terminal window. 
-func createEmptyArr(s tcell.Screen) [][]int {
+// The slice is the same size as the terminal window. 
+func createEmptySlice(s tcell.Screen) [][]int {
   x, y := s.Size()
-  var arr [][]int
+  var slice [][]int
 
   for i := 0; i < x; i++ {
-    var newArr []int
-    arr = append(arr, newArr)
+    var newSlice []int
+    slice = append(slice, newSlice)
     for j := 0; j < y; j++ {
       newInt := 0
-      arr[i] = append(arr[i], newInt)
+      slice[i] = append(slice[i], newInt)
     }
   }
-  return arr
+  return slice
 }
 
 
 // Draws a 2d slice of cells to the screen
 // 1's are white and 0's are background
-func draw(arr [][]int, s tcell.Screen, style tcell.Style) {
+func draw(slice [][]int, s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
   s.Clear()
   for i := 0; i < x; i++ {
     for j := 0; j < y; j++ {
-      if arr[i][j] == 1 {
+      if slice[i][j] == 1 {
         s.SetContent(i, j, tcell.RuneBlock, []rune{}, style)
       }
     }
