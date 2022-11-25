@@ -60,6 +60,9 @@ func menu(s tcell.Screen, style tcell.Style) {
         case '1':
           arr := createRandomArr(s)
           mainLoop(arr, s, style)
+        case 'q', 'Q':
+          s.Fini()
+          os.Exit(0)
         }
       }
     }
@@ -89,6 +92,9 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
           switch ev.Rune() {
           case '1':
             arr = createRandomArr(s)
+          case 'q', 'Q':
+            s.Fini()
+            os.Exit(0)
           }
         }
       }
