@@ -20,12 +20,12 @@ import (
   "github.com/gdamore/tcell/v2"
 )
 
-// This says pick a number between 1 and 50.
-// If it is less than 2, make the cell alive.
+// This says pick a random number between 0 and randHigh.
+// If it is less than randLow, make the cell alive.
 var randHigh = 50
 var randLow = 10
 
-// Displays the menu at the start.
+// Displays the "menu" at the start.
 func menu(s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
   str1 := "Unclassed Penguin Game of Life"
@@ -62,6 +62,9 @@ func menu(s tcell.Screen, style tcell.Style) {
 func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
 
+  // Handles keyboard input in main loop. Mainly ctrl-c 
+  // so You can actually quit. Although 1 will start with
+  // a new seed as well. 
   go func() {
     for {
       switch ev := s.PollEvent().(type) {
@@ -77,7 +80,6 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
           case '1':
             arr = createRandomArr(s)
           }
-
         }
       }
     }
@@ -85,7 +87,6 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
 
   for {
     newArr := createEmptyArr(s)
-
     for i := 0; i < x; i++ {
       for j := 0; j < y; j++ {
         var neighbors int
@@ -128,13 +129,17 @@ func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
 
   for i := -1; i < 2; i++ {
     for j := -1; j < 2; j++ {
+      // Thanks to The Coding Train(on youtube) for this 
+      // "wrap around" formula.
       neighbors += arr[(x+i+cols)%cols][(y+j+rows)%rows]
     }
   }
 
+  // Don't count yourself as a neighbor.
   if arr[x][y] == 1 {
     neighbors--
   }
+
   return neighbors
 }
 
@@ -150,6 +155,8 @@ func createRandomArr(s tcell.Screen) [][]int {
     arr = append(arr, newArr)
     for j := 0; j < y; j++ {
       var newInt int
+      // This is where the global variables change things.
+      // Just changes the probability of returning true. 
       if flipCoin(randHigh,randLow) {
         newInt = 1
       } else {
@@ -161,8 +168,10 @@ func createRandomArr(s tcell.Screen) [][]int {
   return arr
 }
 
-// I use this function to create an empty array that then is populated 
+// I use this function to create an empty "2d" array that then is populated 
 // with the "real" data when we count neighbors on the working array.
+// (By "empty" I mean filled entirely with 0's)
+// The array is the same size as the terminal window. 
 func createEmptyArr(s tcell.Screen) [][]int {
   x, y := s.Size()
   var arr [][]int
@@ -194,7 +203,7 @@ func draw(arr [][]int, s tcell.Screen, style tcell.Style) {
   s.Sync()
 }
 
-// This is used just to write strings to the screen. Used in the main menu.
+// This is used just to write strings to the screen. Used in the "menu".
 func writeToScreen(s tcell.Screen, style tcell.Style, x int, y int, str string) {
   for i, char := range str {
     s.SetContent(x+i, y, rune(char), []rune{}, style)
