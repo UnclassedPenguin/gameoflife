@@ -38,14 +38,20 @@ var randLow = 10
 // Displays the "menu" at the start.
 func menu(s tcell.Screen, style tcell.Style) {
   x, y := s.Size()
-  str1 := "Unclassed Penguin Game of Life"
-  str2 := "Press 1 to start from random seed"
-  str3 := "Esc or Ctrl-C to quit"
+  strings := []string{ "Unclassed Penguin Game of Life",
+                       "Press 1 to start from random seed",
+                       "(You can also press 1 at any time",
+                       "while it is running to restart",
+                       "with a new seed.)",
+                       "Esc or Ctrl-C to quit",
+                     }
 
-  writeToScreen(s,style,((x/2)-(len(str1)/2)),y/3,str1)
-  writeToScreen(s,style,((x/2)-(len(str2)/2)),y/3+2,str2)
-  writeToScreen(s,style,((x/2)-(len(str3)/2)),y/3+4,str3)
+  // Write strings to screen.
+  for i, str := range strings {
+    writeToScreen(s,style,((x/2)-(len(str)/2)),y/3+(i*2),str)
+  }
 
+  // Keyboard handling
   for {
     switch ev := s.PollEvent().(type) {
     case *tcell.EventResize:
@@ -57,12 +63,12 @@ func menu(s tcell.Screen, style tcell.Style) {
         os.Exit(0)
       case tcell.KeyRune:
         switch ev.Rune() {
-        case '1':
-          arr := createRandomArr(s)
-          mainLoop(arr, s, style)
         case 'q', 'Q':
           s.Fini()
           os.Exit(0)
+        case '1':
+          arr := createRandomArr(s)
+          mainLoop(arr, s, style)
         }
       }
     }
@@ -90,17 +96,19 @@ func mainLoop(arr [][]int, s tcell.Screen, style tcell.Style) {
           os.Exit(0)
         case tcell.KeyRune:
           switch ev.Rune() {
-          case '1':
-            arr = createRandomArr(s)
           case 'q', 'Q':
             s.Fini()
             os.Exit(0)
+          case '1':
+            arr = createRandomArr(s)
           }
         }
       }
     }
   }()
 
+  // This is the main "draw" loop. Takes a slice, calculates
+  // a new slice, draws it to the screen, and repeats.
   for {
     newArr := createEmptyArr(s)
     for i := 0; i < x; i++ {
@@ -145,7 +153,7 @@ func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
 
   for i := -1; i < 2; i++ {
     for j := -1; j < 2; j++ {
-      // Thanks to The Coding Train(on youtube) for this 
+      // Thanks to The Coding Train (on youtube) for this 
       // "wrap around" formula.
       neighbors += arr[(x+i+cols)%cols][(y+j+rows)%rows]
     }
@@ -159,7 +167,7 @@ func countNeighbors(s tcell.Screen, arr [][]int, x, y int) int{
   return neighbors
 }
 
-// This creates the first random array. 
+// This creates the first random slice. 
 // To tweak it, mess with the global variables at the top to change
 // the probability that a cell will be alive.
 func createRandomArr(s tcell.Screen) [][]int {
