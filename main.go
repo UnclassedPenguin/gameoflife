@@ -43,7 +43,7 @@ func menu(s tcell.Screen, style tcell.Style) {
                        "(You can also press 1 at any time",
                        "while it is running to restart",
                        "with a new seed.)",
-                       "Esc or Ctrl-C to quit",
+                       "Esc, Ctrl-C, or q to quit",
                      }
 
   // Write strings to screen.
