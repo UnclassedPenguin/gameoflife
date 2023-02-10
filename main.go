@@ -34,6 +34,9 @@ If it is less than randLow, make the cell alive.
 var randHigh = 50
 var randLow = 10
 
+// Keep track of which generation
+var generationNumber = 1
+
 
 // Displays the "menu" at the start.
 func menu(s tcell.Screen, style tcell.Style) {
@@ -226,6 +229,12 @@ func draw(slice [][]int, s tcell.Screen, style tcell.Style) {
       }
     }
   }
+
+  // display generation and increase generation number.
+  generationString := fmt.Sprintf("#: %d", generationNumber)
+  writeToScreen(s, style, 1,1, generationString)
+  generationNumber++
+
   s.Sync()
 }
 
