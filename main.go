@@ -161,9 +161,10 @@ func countNeighbors(s tcell.Screen, slice [][]int, x, y int) int{
   }
 
   // Don't count yourself as a neighbor.
-  if slice[x][y] == 1 {
-    neighbors--
-  }
+  //if slice[x][y] == 1 {
+    //neighbors--
+  //}
+  neighbors -= slice[x][y]
 
   return neighbors
 }
