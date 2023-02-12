@@ -45,7 +45,7 @@ func main() {
   }
 
 
-  slice := createEmptySlice(s)
+  data := createEmptySlice(s)
   x, y := s.Size()
   style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
   style2 := tcell.StyleDefault.Foreground(tcell.ColorGreen)
@@ -64,14 +64,14 @@ func main() {
       switch ev.Key() {
       case tcell.KeyCtrlC, tcell.KeyEscape:
         s.Fini()
-        printSlice(slice)
+        printSlice(data)
         fmt.Printf("X: %d\nY: %d\n", x, y)
         os.Exit(0)
       case tcell.KeyRune:
         switch ev.Rune() {
         case 'q', 'Q':
           s.Fini()
-          printSlice(slice)
+          printSlice(data)
           os.Exit(0)
         }
       }
