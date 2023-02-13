@@ -46,6 +46,19 @@ func updateData(x, y int, data [][]int) {
   }
 }
 
+func save(data [][]int) {
+  f, err := os.Create("gameoflife.txt")
+  if err != nil {
+    fmt.Println("Err Creating file: ", err)
+  }
+
+  defer f.Close()
+
+  for _, value := range data {
+    fmt.Fprintln(f, value)
+  }
+}
+
 func writeToScreen(s tcell.Screen, style tcell.Style, x int, y int, str string) {
   for i, char := range str {
     s.SetContent(x+i, y, rune(char), nil, style)
@@ -91,6 +104,10 @@ func main() {
         case 'q', 'Q':
           s.Fini()
           printSlice(data)
+          os.Exit(0)
+        case 's', 'S':
+          save(data)
+          s.Fini()
           os.Exit(0)
         }
       }
