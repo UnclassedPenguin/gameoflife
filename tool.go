@@ -21,9 +21,28 @@ func createEmptySlice(s tcell.Screen) [][]int {
   return slice
 }
 
+func drawSlice(s tcell.Screen, style tcell.Style, slice [][]int) {
+  x, y := s.Size()
+  for i := 0; i < x; i++ {
+    for j := 0; j < y; j++ {
+      if slice[i][j] == 1 {
+        s.SetContent(i,j,tcell.RuneBlock, nil, style)
+      }
+    }
+  }
+}
+
 func printSlice(slice [][]int) {
   for i, _ := range slice{
     fmt.Println(slice[i])
+  }
+}
+
+func updateData(x, y int, data [][]int) {
+  if data[x][y] == 0 {
+    data[x][y] = 1
+  } else {
+    data[x][y] = 0
   }
 }
 
@@ -46,7 +65,7 @@ func main() {
 
 
   data := createEmptySlice(s)
-  x, y := s.Size()
+  //x, y := s.Size()
   style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
   style2 := tcell.StyleDefault.Foreground(tcell.ColorGreen)
   style3 := tcell.StyleDefault.Foreground(tcell.ColorRed)
@@ -57,6 +76,7 @@ func main() {
   s.Clear()
 
   for {
+    s.Clear()
     switch ev := s.PollEvent().(type) {
     case *tcell.EventResize:
       s.Sync()
@@ -65,7 +85,6 @@ func main() {
       case tcell.KeyCtrlC, tcell.KeyEscape:
         s.Fini()
         printSlice(data)
-        fmt.Printf("X: %d\nY: %d\n", x, y)
         os.Exit(0)
       case tcell.KeyRune:
         switch ev.Rune() {
@@ -76,17 +95,19 @@ func main() {
         }
       }
     case *tcell.EventMouse:
-      x, y := ev.Position()
-      s.Clear()
-      s.SetContent(x, y, tcell.RuneBlock, nil, style)
-      s.Sync()
+      xPos, yPos := ev.Position()
+      s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style)
+
+      drawSlice(s, style3, data)
+      s.Show()
       switch ev.Buttons() {
       case tcell.Button1:
-        s.SetContent(x, y, tcell.RuneBlock, nil, style2)
-        s.Sync()
+        updateData(xPos,yPos, data)
+        s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style2)
+        s.Show()
       case tcell.Button2:
-        s.SetContent(x, y, tcell.RuneBlock, nil, style3)
-        s.Sync()
+        s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style3)
+        s.Show()
       }
     }
   }
