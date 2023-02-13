@@ -78,10 +78,9 @@ func main() {
 
 
   data := createEmptySlice(s)
-  //x, y := s.Size()
+
   style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
   style2 := tcell.StyleDefault.Foreground(tcell.ColorGreen)
-  style3 := tcell.StyleDefault.Foreground(tcell.ColorRed)
 
   s.SetStyle(style)
   s.EnableMouse()
@@ -97,13 +96,13 @@ func main() {
       switch ev.Key() {
       case tcell.KeyCtrlC, tcell.KeyEscape:
         s.Fini()
-        printSlice(data)
+        //printSlice(data)
         os.Exit(0)
       case tcell.KeyRune:
         switch ev.Rune() {
         case 'q', 'Q':
           s.Fini()
-          printSlice(data)
+          //printSlice(data)
           os.Exit(0)
         case 's', 'S':
           save(data)
@@ -115,15 +114,12 @@ func main() {
       xPos, yPos := ev.Position()
       s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style)
 
-      drawSlice(s, style3, data)
+      drawSlice(s, style2, data)
       s.Show()
       switch ev.Buttons() {
       case tcell.Button1:
         updateData(xPos,yPos, data)
         s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style2)
-        s.Show()
-      case tcell.Button2:
-        s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style3)
         s.Show()
       }
     }
