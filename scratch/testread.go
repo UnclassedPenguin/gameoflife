@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-
+  // Read file
   f, _ := ioutil.ReadFile("TESTTEST.txt")
 
   lines := strings.Split(string(f), "\n")
