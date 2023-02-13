@@ -7,7 +7,12 @@ import (
   "strings"
 )
 
-func readFile(lines []string) {
+func main() {
+
+  f, _ := ioutil.ReadFile("TESTTEST.txt")
+
+  lines := strings.Split(string(f), "\n")
+
   var cleanLines []string
   var data [][]int
 
@@ -44,15 +49,4 @@ func readFile(lines []string) {
 
   fmt.Println("------------------")
   fmt.Println(data)
-}
-
-func main() {
-  fmt.Println("I'm going to read a file")
-  f, _ := ioutil.ReadFile("TESTTEST.txt")
-
-
-  x := string(f)
-  lines := strings.Split(x, "\n")
-
-  readFile(lines)
 }
