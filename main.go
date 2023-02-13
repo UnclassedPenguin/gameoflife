@@ -15,7 +15,10 @@ package main
 import (
   "os"
   "fmt"
+  "flag"
   "time"
+  "strings"
+  "io/ioutil"
   "math/rand"
   "github.com/gdamore/tcell/v2"
 )
@@ -39,13 +42,14 @@ var generationNumber = 1
 
 
 // Displays the "menu" at the start.
-func menu(s tcell.Screen, style tcell.Style) {
+func menu(s tcell.Screen, style tcell.Style, showGen bool, file string) {
   x, y := s.Size()
   strings := []string{ "Unclassed Penguin Game of Life",
                        "Press 1 to start from random seed",
                        "(You can also press 1 at any time",
                        "while it is running to restart",
                        "with a new seed.)",
+                       "Or Press 2 to load file",
                        "Esc, Ctrl-C, or q to quit",
                      }
 
@@ -72,7 +76,10 @@ func menu(s tcell.Screen, style tcell.Style) {
           os.Exit(0)
         case '1':
           slice := createRandomSlice(s)
-          mainLoop(slice, s, style)
+          mainLoop(slice, s, style, showGen, file)
+        case '2':
+          slice := readFile(file)
+          mainLoop(slice, s, style, showGen, file)
         }
       }
     }
@@ -82,7 +89,7 @@ func menu(s tcell.Screen, style tcell.Style) {
 // This is the main loop. It gets a random slice, draws it to the screen,
 // Does the computing to figure out how many neighbors a cell has, creates
 // the new slice, and then draws it and repeats.
-func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style) {
+func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style, showGen bool, file string) {
   x, y := s.Size()
 
   // Handles keyboard input in main loop. Mainly ctrl-c 
@@ -105,6 +112,8 @@ func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style) {
             os.Exit(0)
           case '1':
             slice = createRandomSlice(s)
+          case '2':
+            slice = readFile(file)
           }
         }
       }
@@ -143,7 +152,7 @@ func mainLoop(slice [][]int, s tcell.Screen, style tcell.Style) {
 
     slice = newSlice
 
-    draw(slice, s, style)
+    draw(slice, s, style, showGen)
     time.Sleep(time.Millisecond * 100)
   }
 }
@@ -216,10 +225,52 @@ func createEmptySlice(s tcell.Screen) [][]int {
   return slice
 }
 
+// Reads a file as a start
+func readFile(file string) [][]int {
+  f, _ := ioutil.ReadFile(file)
+
+  lines := strings.Split(string(f), "\n")
+
+  var cleanLines []string
+  var data [][]int
+
+  // Remove the leading [ and the trailing ] of each line and remove
+  // empty lines
+  for _, line := range lines {
+    newline1 := strings.Replace(line, "[", "", -1)
+    newline2 := strings.Replace(newline1, "]", "", -1)
+    newline3 := strings.Replace(newline2, " ", "", -1)
+    if len(line) > 0 {
+      cleanLines = append(cleanLines, newline3)
+    }
+  }
+
+  // Create an array of arrays with the proper size for the data. Fill with 0's
+  for i := 0; i < len(cleanLines); i++ {
+    var newSlice []int
+    data = append(data, newSlice)
+    for j := 0; j < len(cleanLines[0]); j++ {
+      newInt := 0
+      data[i] = append(data[i], newInt)
+    }
+  }
+
+  // Go over the string data, and convert it to the int data. Only have to update
+  // the 1's
+  for i, line := range cleanLines {
+    for j, char := range line {
+      if char == '1' {
+        data[i][j] = 1
+      }
+    }
+  }
+  return data
+
+}
 
 // Draws a 2d slice of cells to the screen
 // 1's are white and 0's are background
-func draw(slice [][]int, s tcell.Screen, style tcell.Style) {
+func draw(slice [][]int, s tcell.Screen, style tcell.Style, showGen bool) {
   x, y := s.Size()
   s.Clear()
   for i := 0; i < x; i++ {
@@ -231,9 +282,11 @@ func draw(slice [][]int, s tcell.Screen, style tcell.Style) {
   }
 
   // display generation and increase generation number.
-  generationString := fmt.Sprintf("#: %d", generationNumber)
-  writeToScreen(s, style, 1,1, generationString)
-  generationNumber++
+  if showGen {
+    generationString := fmt.Sprintf("#: %d", generationNumber)
+    writeToScreen(s, style, 1,1, generationString)
+    generationNumber++
+  }
 
   s.Sync()
 }
@@ -262,6 +315,17 @@ func flipCoin(total int, limit int) bool{
 
 // Main function. Starts the tcell.Screen and passes to the menu. 
 func main() {
+  // Flags
+  var (
+    showGen bool
+    file    string
+  )
+
+  flag.BoolVar( &showGen, "g", false, "Shows generation count")
+  flag.StringVar(&file, "f", "", "File to read from")
+
+  flag.Parse()
+
   s, err := tcell.NewScreen()
   if err != nil {
     fmt.Println("Error in tcell.NewScreen:", err)
@@ -276,5 +340,5 @@ func main() {
 
   style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
 
-  menu(s, style)
+  menu(s, style, showGen, file)
 }

@@ -20,11 +20,16 @@ Then simply run:
 $ gameoflife
 ```
 
+## Create Custom arrays
+
+I created the tool.go to create custom starts. run tool.go `$ go run tool.go`. it starts with a blank screen. click on cells to enable them, or click again to disable them. When finished, hit s to save. Will write to the file "gameoflife.txt". (If you want to save this file for further use, copy it and change its name, otherwise it will be overwritten the next time you use the tool.)  
+To run it, run the main program with -f and the file name. `$ go run main.go -f gameoflife.txt` then press 2. Press 2 at anytime to restart.  
+
 ## To-Do:
 
 - Handle panic if while running terminal size changes and it tries to go out of range of the array.
 - Maybe add a history of what the starting array was, so you can repeat it?
-- Add ability to start with a custom array instead of random...So you can draw interesting patterns and see them working.
-- Need to add flags. 
-  - One for a file to read, if you are going to do custom ones. Which will be an array of arrays.
-  - One to show generation. 
+- ~~Add ability to start with a custom array instead of random...So you can draw interesting patterns and see them working.~~
+- ~~Need to add flags.~~ 
+  - ~~One for a file to read, if you are going to do custom ones. Which will be an array of arrays.~~
+  - ~~One to show generation.~~
