@@ -27,7 +27,8 @@ To run it, run the main program with -f and the file name. `$ go run main.go -f 
 
 ## To-Do:
 
-- Add ability on save to enter a name of file to save.
+- tool.go - Add a help pop up when press h.
+- tool.go - Add ability on save to enter a name of file to save.
 - Handle panic if while running terminal size changes and it tries to go out of range of the array.
 - Maybe add a history of what the starting array was, so you can repeat it?
 - ~~Add ability to edit starts with the tool. So load an already created file into the tool, and edit it...Simple enough, ya?~~
