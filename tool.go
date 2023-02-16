@@ -140,6 +140,7 @@ func main() {
     data = createEmptySlice(s)
   }
 
+  _, y := s.Size()
   style := tcell.StyleDefault.Foreground(tcell.ColorWhite)
   style2 := tcell.StyleDefault.Foreground(tcell.ColorGreen)
 
@@ -148,6 +149,7 @@ func main() {
 
   s.Clear()
   drawSlice(s, style2, data)
+  writeToScreen(s, style, 0, y-1, "s: save | q: quit")
   s.Sync()
 
   for {
@@ -177,6 +179,7 @@ func main() {
       s.Clear()
       s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style)
       drawSlice(s, style2, data)
+      writeToScreen(s, style, 0, y-1, "Press s to save")
       s.Show()
       switch ev.Buttons() {
       case tcell.Button1:
