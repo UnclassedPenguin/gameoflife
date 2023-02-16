@@ -27,6 +27,7 @@ To run it, run the main program with -f and the file name. `$ go run main.go -f 
 
 ## To-Do:
 
+- Add ability to edit starts with the tool. So load an already created file into the tool, and edit it...Simple enough, ya?
 - Handle panic if while running terminal size changes and it tries to go out of range of the array.
 - Maybe add a history of what the starting array was, so you can repeat it?
 - ~~Add ability to start with a custom array instead of random...So you can draw interesting patterns and see them working.~~
