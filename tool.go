@@ -49,8 +49,8 @@ func updateData(x, y int, data [][]int) {
   }
 }
 
-func save(data [][]int) {
-  f, err := os.Create("gameoflife.txt")
+func save(data [][]int, name string) {
+  f, err := os.Create(fmt.Sprintf(name + ".txt"))
   if err != nil {
     fmt.Println("Err Creating file: ", err)
   }
@@ -152,6 +152,8 @@ func main() {
   writeToScreen(s, style, 0, y-1, "s: save | q: quit")
   s.Sync()
 
+  cont := true
+
   for {
     switch ev := s.PollEvent().(type) {
     case *tcell.EventResize:
@@ -169,9 +171,31 @@ func main() {
           //printSlice(data)
           os.Exit(0)
         case 's', 'S':
-          save(data)
-          s.Fini()
-          os.Exit(0)
+          //save(data, "gameoflife")
+          writeToScreen(s, style, 0, y-1, "File name to save?: ")
+          s.ShowCursor(20, y-1)
+          s.Show()
+          var runeArr []rune
+          for cont {
+            switch ev := s.PollEvent().(type){
+              case *tcell.EventKey:
+              switch ev.Key() {
+              case tcell.KeyEscape:
+                cont = false
+              case tcell.KeyEnter:
+                writeToScreen(s, style, 1, y-4, string(runeArr))
+                s.Show()
+                save(data, string(runeArr))
+                s.Fini()
+                os.Exit(0)
+              case tcell.KeyRune:
+                runeArr = append(runeArr, ev.Rune())
+                writeToScreen(s, style, 20, y-1, string(runeArr))
+                s.ShowCursor(20 + len(runeArr), y-1)
+                s.Show()
+              }
+            }
+          }
         }
       }
     case *tcell.EventMouse:
@@ -179,7 +203,7 @@ func main() {
       s.Clear()
       s.SetContent(xPos, yPos, tcell.RuneBlock, nil, style)
       drawSlice(s, style2, data)
-      writeToScreen(s, style, 0, y-1, "Press s to save")
+      writeToScreen(s, style, 0, y-1, "s: save | q: quit")
       s.Show()
       switch ev.Buttons() {
       case tcell.Button1:

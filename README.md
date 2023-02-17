@@ -22,13 +22,13 @@ $ gameoflife
 
 ## Create Custom arrays
 
-I created the tool.go to create custom starts. run tool.go `$ go run tool.go`. it starts with a blank screen. click on cells to enable them, or click again to disable them. When finished, hit s to save. Will write to the file "gameoflife.txt". (If you want to save this file for further use, copy it and change its name, otherwise it will be overwritten the next time you use the tool.)  
+I created the tool.go to create custom starts. run tool.go `$ go run tool.go`. it starts with a blank screen. click on cells to enable them, or click again to disable them. When finished, hit s to save. It will ask for a file name, and then hit enter, and it will save filename with a .txt extension in the current folder. 
 To run it, run the main program with -f and the file name. `$ go run main.go -f gameoflife.txt` then press 2. Press 2 at anytime to restart.  
 
 ## To-Do:
 
 - tool.go - Add a help pop up when press h.
-- tool.go - Add ability on save to enter a name of file to save.
+- ~~tool.go - Add ability on save to enter a name of file to save.~~
 - Handle panic if while running terminal size changes and it tries to go out of range of the array.
 - Maybe add a history of what the starting array was, so you can repeat it?
 - ~~Add ability to edit starts with the tool. So load an already created file into the tool, and edit it...Simple enough, ya?~~
