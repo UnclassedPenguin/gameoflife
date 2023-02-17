@@ -49,6 +49,36 @@ func updateData(x, y int, data [][]int) {
   }
 }
 
+// Gets file name to save as. 
+func getFileName(s tcell.Screen, style tcell.Style) string {
+  _, y := s.Size()
+
+  writeToScreen(s, style, 0, y-1, "File name to save?: ")
+  s.ShowCursor(20, y-1)
+  s.Show()
+  var fileName []rune
+  for {
+    switch ev := s.PollEvent().(type){
+      case *tcell.EventKey:
+      switch ev.Key() {
+      case tcell.KeyEscape:
+        s.Fini()
+        os.Exit(0)
+      case tcell.KeyEnter:
+        writeToScreen(s, style, 1, y-4, string(fileName))
+        s.Show()
+        return string(fileName)
+      case tcell.KeyRune:
+        fileName = append(fileName, ev.Rune())
+        writeToScreen(s, style, 20, y-1, string(fileName))
+        s.ShowCursor(20 + len(fileName), y-1)
+        s.Show()
+      }
+    }
+  }
+}
+
+// Writes the file, using the data entered and the name entered from getFileName()
 func save(data [][]int, name string) {
   f, err := os.Create(fmt.Sprintf(name + ".txt"))
   if err != nil {
@@ -152,7 +182,6 @@ func main() {
   writeToScreen(s, style, 0, y-1, "s: save | q: quit")
   s.Sync()
 
-  cont := true
 
   for {
     switch ev := s.PollEvent().(type) {
@@ -172,31 +201,11 @@ func main() {
           os.Exit(0)
         case 's', 'S':
           //save(data, "gameoflife")
-          writeToScreen(s, style, 0, y-1, "File name to save?: ")
-          s.ShowCursor(20, y-1)
-          s.Show()
-          var fileName []rune
-          for cont {
-            switch ev := s.PollEvent().(type){
-              case *tcell.EventKey:
-              switch ev.Key() {
-              case tcell.KeyEscape:
-                s.Fini()
-                os.Exit(0)
-              case tcell.KeyEnter:
-                writeToScreen(s, style, 1, y-4, string(fileName))
-                s.Show()
-                save(data, string(fileName))
-                s.Fini()
-                os.Exit(0)
-              case tcell.KeyRune:
-                fileName = append(fileName, ev.Rune())
-                writeToScreen(s, style, 20, y-1, string(fileName))
-                s.ShowCursor(20 + len(fileName), y-1)
-                s.Show()
-              }
-            }
-          }
+          fileName := getFileName(s, style)
+          save(data, fileName)
+          s.Fini()
+          os.Exit(0)
+
         }
       }
     case *tcell.EventMouse:
