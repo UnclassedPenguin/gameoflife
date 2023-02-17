@@ -175,23 +175,24 @@ func main() {
           writeToScreen(s, style, 0, y-1, "File name to save?: ")
           s.ShowCursor(20, y-1)
           s.Show()
-          var runeArr []rune
+          var fileName []rune
           for cont {
             switch ev := s.PollEvent().(type){
               case *tcell.EventKey:
               switch ev.Key() {
               case tcell.KeyEscape:
-                cont = false
+                s.Fini()
+                os.Exit(0)
               case tcell.KeyEnter:
-                writeToScreen(s, style, 1, y-4, string(runeArr))
+                writeToScreen(s, style, 1, y-4, string(fileName))
                 s.Show()
-                save(data, string(runeArr))
+                save(data, string(fileName))
                 s.Fini()
                 os.Exit(0)
               case tcell.KeyRune:
-                runeArr = append(runeArr, ev.Rune())
-                writeToScreen(s, style, 20, y-1, string(runeArr))
-                s.ShowCursor(20 + len(runeArr), y-1)
+                fileName = append(fileName, ev.Rune())
+                writeToScreen(s, style, 20, y-1, string(fileName))
+                s.ShowCursor(20 + len(fileName), y-1)
                 s.Show()
               }
             }
