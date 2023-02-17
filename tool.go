@@ -73,6 +73,16 @@ func getFileName(s tcell.Screen, style tcell.Style) string {
         writeToScreen(s, style, 20, y-1, string(fileName))
         s.ShowCursor(20 + len(fileName), y-1)
         s.Show()
+      case tcell.KeyBackspace, tcell.KeyBackspace2:
+        tempLength := len(fileName)
+        if len(fileName) > 0 {
+          fileName = fileName[:len(fileName)-1]
+        }
+        difference := tempLength - len(fileName)
+        // This is a hacky line for when you backspace, it covers the previous characters with a space.
+        writeToScreen(s, style, 20, y-1, fmt.Sprintf(string(fileName)+strings.Repeat(" ", difference)))
+        s.ShowCursor(20 + len(fileName), y-1)
+        s.Show()
       }
     }
   }
