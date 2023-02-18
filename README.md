@@ -27,6 +27,7 @@ To run it, run the main program with -f and the file name. `$ go run main.go -f 
 
 ## To-Do:
 
+- Combine tool.go into main program.
 - tool.go - Add a help pop up when press h.
 - Handle panic if while running terminal size changes and it tries to go out of range of the array.
 - Maybe add a history of what the starting array was, so you can repeat it?
